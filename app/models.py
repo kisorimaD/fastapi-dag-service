@@ -16,11 +16,11 @@ class Node(Base):
     )
 
     edges_in = relationship(
-        "Edge", foreign_keys="edges.source_id", back_populates="source_node", cascade="all, delete-orphan")
+        "Edge", foreign_keys="Edge.target_id", back_populates="target_node", cascade="all, delete-orphan")
     edges_out = relationship(
-        "Edge", foreign_keys="edges.target_id", back_populates="target_node", cascade="all, delete-orphan")
+        "Edge", foreign_keys="Edge.source_id", back_populates="source_node", cascade="all, delete-orphan")
 
-    graph = relationship("Graph", back_populates="graps.id")
+    graph = relationship("Graph", back_populates="nodes")
 
 
 class Edge(Base):
@@ -32,11 +32,11 @@ class Edge(Base):
     graph_id = Column(Integer, ForeignKey('graphs.id'))
 
     source_node = relationship("Node", foreign_keys=[
-                               source_id], back_populates="edges_in")
+                               source_id], back_populates="edges_out")
     target_node = relationship("Node", foreign_keys=[
-                               target_id], back_populates="edges_out")
+                               target_id], back_populates="edges_in")
 
-    graph = relationship("Graph", back_populates="graps.id")
+    graph = relationship("Graph", back_populates="edges")
 
 
 class Graph(Base):

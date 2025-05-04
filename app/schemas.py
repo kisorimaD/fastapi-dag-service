@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 MAX_NODE_NAME_LENGTH = 255
 node_name_pattern = r'^[a-zA-Z]+$'
@@ -20,6 +20,12 @@ class Edge(BaseModel):
 class GraphCreate(BaseModel):
     nodes: list[Node]
     edges: list[Edge]
+
+    @field_validator('nodes')
+    def check_null_nodes(cls, nodes):
+        if len(nodes) == 0:
+            raise NotImplementedError("later")
+        return nodes
 
 
 class GraphCreateResponse(BaseModel):
