@@ -1,12 +1,12 @@
 import queue
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from schemas import GraphCreate, GraphReadResponse, GraphCreateResponse, AdjacencyListResponse
+from .schemas import GraphCreate, GraphReadResponse, GraphCreateResponse, AdjacencyListResponse
 from fastapi import HTTPException
-from models import Graph, Node, Edge
+from .models import Graph, Node, Edge
 
 
-async def create_graph(db: AsyncSession, graph: GraphCreate) -> GraphCreateResponse:
+async def db_create_graph(db: AsyncSession, graph: GraphCreate) -> GraphCreateResponse:
     adj_list = dict()
 
     for node in graph.nodes:
@@ -64,7 +64,7 @@ async def create_graph(db: AsyncSession, graph: GraphCreate) -> GraphCreateRespo
     return GraphCreateResponse(graph_db.id)
 
 
-async def get_graph(db: AsyncSession, graph_id: int) -> GraphReadResponse:
+async def db_get_graph(db: AsyncSession, graph_id: int) -> GraphReadResponse:
     query = select(Graph).where(Graph.id == graph_id).scalar()
 
     graph_db = await db.execute(query)
@@ -80,8 +80,8 @@ async def get_graph(db: AsyncSession, graph_id: int) -> GraphReadResponse:
     )
 
 
-async def get_adj_list(db: AsyncSession, graph_id: int, transpose: bool = False) -> AdjacencyListResponse:
-    regular_graph = await get_graph(db, graph_id)
+async def db_get_adj_list(db: AsyncSession, graph_id: int, transpose: bool = False) -> AdjacencyListResponse:
+    regular_graph = await db_get_graph(db, graph_id)
 
     name_by_id = dict()
     adj_list = dict()
@@ -107,7 +107,7 @@ async def get_adj_list(db: AsyncSession, graph_id: int, transpose: bool = False)
     )
 
 
-async def delete_node(db: AsyncSession, graph_id: int, node_name: str):
+async def db_delete_node(db: AsyncSession, graph_id: int, node_name: str):
     query = select(Node).where(Node.graph_id == graph_id,
                                Node.name == node_name).scalar()
 

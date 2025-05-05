@@ -1,6 +1,8 @@
-from db import LocalSession
+from .db import LocalSession
 from contextlib import asynccontextmanager
 from fastapi import Depends
+from typing import Annotated
+from sqlalchemy.ext.asyncio import AsyncSession
 
 @asynccontextmanager
 async def get_db_session():
@@ -8,4 +10,4 @@ async def get_db_session():
         yield session
 
 
-Session = Depends(get_db_session)
+Session = Annotated[AsyncSession, Depends(get_db_session)]
