@@ -1,8 +1,9 @@
 import queue
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from .schemas import GraphCreate, GraphReadResponse, GraphCreateResponse, AdjacencyListResponse
 from fastapi import HTTPException
+
+from .schemas import GraphCreate, GraphReadResponse, GraphCreateResponse, AdjacencyListResponse
 from .models import Graph, Node, Edge
 
 
@@ -61,7 +62,7 @@ async def db_create_graph(db: AsyncSession, graph: GraphCreate) -> GraphCreateRe
 
     await db.commit()
 
-    return GraphCreateResponse(graph_db.id)
+    return GraphCreateResponse(id=graph_db.id)
 
 
 async def db_get_graph(db: AsyncSession, graph_id: int) -> GraphReadResponse:
@@ -73,10 +74,9 @@ async def db_get_graph(db: AsyncSession, graph_id: int) -> GraphReadResponse:
         raise HTTPException(404, "Graph entity not found")
 
     return GraphReadResponse(
-        {
-        "nodes": graph_db.nodes,
-        "edegs": graph_db.edges,
-        }
+        id=graph_id,
+        nodes=graph_db.nodes,
+        edges=graph_db.edges
     )
 
 
@@ -99,11 +99,7 @@ async def db_get_adj_list(db: AsyncSession, graph_id: int, transpose: bool = Fal
                 name_by_id[edge.source_id])
 
     return AdjacencyListResponse(
-        {
-            "id": graph_id,
-            "nodes": regular_graph["nodes"],
-            "edges": adj_list
-        }
+        adjacency_list=adj_list
     )
 
 

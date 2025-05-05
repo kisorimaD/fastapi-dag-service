@@ -12,7 +12,7 @@ class Node(Base):
     graph_id = Column(Integer, ForeignKey('graphs.id'))
 
     __table_args__ = (
-        UniqueConstraint('name', 'graph_id')
+        UniqueConstraint('name', 'graph_id'),
     )
 
     edges_in = relationship(
