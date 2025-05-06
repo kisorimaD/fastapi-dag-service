@@ -27,7 +27,7 @@
 ## Запуск
 
 ### Через Docker Compose
-1. У вас должен быть установлен Docker и Docker Compose.
+1. У вас должен быть [установлен](https://docs.docker.com/engine/install/) Docker и Docker Compose
 2. Склонируйте репозиторий:
 ```bash
 git clone https://github.com/kisorimaD/fastapi-dag-service.git
