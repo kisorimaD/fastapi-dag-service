@@ -39,48 +39,66 @@ def name_range(n: int):
             now = "a" + now
 
 
-def test_simple_graph(test_client: TestClient):
+def test_create_simple_graph(test_client: TestClient):
     response = post_graph(test_client, ["a", "b", "c"], [("a", "b")])
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
 
-def test_graph_with_cycle(test_client: TestClient):
+def test_create_graph_with_cycle(test_client: TestClient):
     response = post_graph(test_client, ["a", "b", "c"], [
                           ("a", "b"), ("b", "c"), ("c", "a")])
 
     assert response.status_code == 422
-    assert response.json() == {"detail": "Graph is not DAG"}
+
+    data = response.json()
+    assert 'detail' in data
+    assert data['detail'][0]['msg'] == "Graph is not DAG"
 
 
-def test_graph_with_duplicate_edges(test_client: TestClient):
+def test_create_graph_with_duplicate_edges(test_client: TestClient):
     response = post_graph(test_client, ["a", "b", "c"], [
                           ("a", "b"), ("b", "c"), ("a", "b")])
 
     assert response.status_code == 422
-    assert response.json() == {
-        "detail": "There are duplicate edges in the graph"}
+
+    data = response.json()
+    assert 'detail' in data
+    assert data['detail'][0]['msg'] == "There are duplicate edges in the graph"
 
 
-def test_disconnected_graph(test_client: TestClient):
+def test_create_disconnected_graph(test_client: TestClient):
     response = post_graph(test_client, ["a", "b", "c", "d"], [])
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
 
-def test_nonexistent_node(test_client: TestClient):
+def test_create_graph_with_nonexistent_node(test_client: TestClient):
     response = post_graph(test_client, ["a", "b", "c"], [
                           ("a", "b"), ("b", "d")])
 
     assert response.status_code == 422
-    assert response.json() == {"detail": "Node d not found in the graph"}
+    data = response.json()
+    assert 'detail' in data
+    assert data['detail'][0]['msg'] == "Node d not found in the graph"
 
 
-def test_graph_with_no_nodes(test_client: TestClient):
+def test_create_graph_with_no_nodes(test_client: TestClient):
     response = post_graph(test_client, [], [])
 
     assert response.status_code == 422
-    assert response.json() == {"detail": "Graph must have at least one node"}
+    data = response.json()
+    assert 'detail' in data
+    assert data['detail'][0]['msg'] == "Nodes list cannot be empty"
+
+
+def test_create_invalid_node_name(test_client: TestClient):
+    response = post_graph(test_client, ["123", "b", "c"], [
+                          ("123", "b"), ("b", "c")])
+
+    assert response.status_code == 422
+    data = response.json()
+    assert data["detail"][0]["msg"] == "String should match pattern '^[a-zA-Z]+$'"
 
 
 def test_big_cycle_with_multiple_edges(test_client: TestClient):
@@ -89,7 +107,9 @@ def test_big_cycle_with_multiple_edges(test_client: TestClient):
         (str(names[i]), str(names[i + 1])) for i in range(len(names) - 1)] + [(str(names[-1]), str(names[0]))])
 
     assert response.status_code == 422
-    assert response.json() == {"detail": "Graph is not DAG"}
+    data = response.json()
+    assert 'detail' in data
+    assert data['detail'][0]['msg'] == "Graph is not DAG"
 
 
 def test_big_acyclic_graph_with_multiple_edges(test_client: TestClient):
@@ -97,7 +117,7 @@ def test_big_acyclic_graph_with_multiple_edges(test_client: TestClient):
     edges = [(name1, name2) for name1, name2 in combinations(names, 2)]
     response = post_graph(test_client, names, edges)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
 
 
 def test_two_graphs_with_same_node_names(test_client: TestClient):
@@ -106,11 +126,12 @@ def test_two_graphs_with_same_node_names(test_client: TestClient):
 
     response1 = post_graph(test_client, names, edges)
 
-    assert response1.status_code == 200
+    assert response1.status_code == 201
 
     response2 = post_graph(test_client, names, edges)
 
-    assert response2.status_code == 200
+    assert response2.status_code == 201
+
 
 @pytest.mark.slow
 def test_many_big_graphs(test_client: TestClient):
@@ -120,4 +141,4 @@ def test_many_big_graphs(test_client: TestClient):
     for i in range(1000):
         response = post_graph(test_client, names, edges)
 
-        assert response.status_code == 200
+        assert response.status_code == 201

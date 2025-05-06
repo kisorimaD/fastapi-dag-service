@@ -1,4 +1,5 @@
 import queue
+from fastapi.exceptions import RequestValidationError
 from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -9,6 +10,20 @@ from fastapi import HTTPException
 from . import schemas
 from .models import Graph, Node, Edge
 
+def raise_validation_error(message: str, loc: list[str] = None):
+    if loc is None:
+        loc = []
+
+    errors = [
+        {
+            "loc": loc,
+            "msg": message,
+            "type": "value_error"
+        }
+    ]
+    raise RequestValidationError(
+        errors=errors
+    )
 
 async def db_create_graph(db: AsyncSession, graph: schemas.GraphCreate) -> schemas.GraphCreateResponse:
     adj_list = dict()
@@ -20,11 +35,9 @@ async def db_create_graph(db: AsyncSession, graph: schemas.GraphCreate) -> schem
 
     for edge in graph.edges:
         if edge.source not in adj_list:
-            raise HTTPException(
-                422, f"Node {edge.source} not found in the graph")
+            raise_validation_error(f"Node {edge.source} not found in the graph", ["body", "edges", "source"])
         if edge.target not in adj_list:
-            raise HTTPException(
-                422, f"Node {edge.target} not found in the graph")
+            raise_validation_error(f"Node {edge.target} not found in the graph", ["body", "edges", "target"])
         adj_list[edge.source].append(edge.target)
 
     for node in graph.nodes:
@@ -47,7 +60,8 @@ async def db_create_graph(db: AsyncSession, graph: schemas.GraphCreate) -> schem
 
                 for v_neighbour in adj_list[v]:
                     if nodes_status[v_neighbour] == 2:
-                        raise HTTPException(422, "Graph is not DAG")
+                        # raise HTTPException(422, "Graph is not DAG")
+                        raise_validation_error("Graph is not DAG", ["body", "edges"])
                     elif nodes_status[v_neighbour] == 0:
                         dfs_stack.append(v_neighbour)
 
@@ -80,7 +94,7 @@ async def db_create_graph(db: AsyncSession, graph: schemas.GraphCreate) -> schem
         await db.commit()
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(422, "There are duplicate edges in the graph")
+        raise_validation_error("There are duplicate edges in the graph", ["body", "edges"])
 
     return schemas.GraphCreateResponse(id=graph_db.id)
 

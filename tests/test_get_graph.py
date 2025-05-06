@@ -4,7 +4,7 @@ from tests.test_create_graph import post_graph
 
 def create_test_graph(test_client: TestClient, nodes: list[str], edges: list[tuple[str, str]]) -> int:
     response = post_graph(test_client, nodes, edges)
-    assert response.status_code == 200
+    assert response.status_code == 201
     return response.json()["id"]
 
 
@@ -68,7 +68,7 @@ def test_get_nonexistent_graph(test_client: TestClient):
     response = test_client.get("/api/graph/9999")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Graph entity not found"}
+    assert response.json() == {"message": "Graph entity not found"}
 
 
 def test_get_graph_with_no_edges(test_client: TestClient):

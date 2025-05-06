@@ -62,7 +62,7 @@ def test_delete_node_nonexistent_node(test_client: TestClient):
     response = test_client.delete(f"/api/graph/{graph_id}/node/z")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Graph entity not found"}
+    assert response.json() == {"message": "Graph entity not found"}
 
     response = test_client.get(f"/api/graph/{graph_id}")
     data = response.json()
@@ -74,7 +74,7 @@ def test_delete_node_nonexistent_graph(test_client: TestClient):
     response = test_client.delete("/api/graph/9999/node/a")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Graph entity not found"}
+    assert response.json() == {"message": "Graph entity not found"}
 
 def test_delete_last_node(test_client: TestClient):
     nodes = ["a"]
@@ -88,4 +88,4 @@ def test_delete_last_node(test_client: TestClient):
     response = test_client.get(f"/api/graph/{graph_id}")
 
     assert response.status_code == 404
-    assert response.json() == {"detail": "Graph entity not found"}
+    assert response.json() == {"message": "Graph entity not found"}
