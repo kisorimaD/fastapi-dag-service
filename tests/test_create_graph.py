@@ -98,3 +98,26 @@ def test_big_acyclic_graph_with_multiple_edges(test_client: TestClient):
     response = post_graph(test_client, names, edges)
 
     assert response.status_code == 200
+
+
+def test_two_graphs_with_same_node_names(test_client: TestClient):
+    names = ['a', 'b', 'c', 'd']
+    edges = [('a', 'b'), ('b', 'c'), ('c', 'd')]
+
+    response1 = post_graph(test_client, names, edges)
+
+    assert response1.status_code == 200
+
+    response2 = post_graph(test_client, names, edges)
+
+    assert response2.status_code == 200
+
+
+def test_many_big_graphs(test_client: TestClient):
+    names = list(name_range(100))
+    edges = [(name1, name2) for name1, name2 in combinations(names, 2)][:1000]
+
+    for i in range(1000):
+        response = post_graph(test_client, names, edges)
+
+        assert response.status_code == 200
