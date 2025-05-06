@@ -95,6 +95,8 @@ docker compose exec dag-api pytest tests/
 pytest tests/
 ```
 
+> При запуске с флагом `-k "not slow"` можно пропустить медленные тесты
+
 ## API Endpoints
 
 > FastAPI автоматически генерирует интерактивную документацию для API по адресу [`/docs`](http://localhost:8080/docs). 

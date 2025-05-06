@@ -75,3 +75,17 @@ def test_delete_node_nonexistent_graph(test_client: TestClient):
 
     assert response.status_code == 404
     assert response.json() == {"detail": "Graph entity not found"}
+
+def test_delete_last_node(test_client: TestClient):
+    nodes = ["a"]
+    edges = []
+    graph_id = create_test_graph(test_client, nodes, edges)
+
+    response = test_client.delete(f"/api/graph/{graph_id}/node/a")
+
+    assert response.status_code == 204
+    
+    response = test_client.get(f"/api/graph/{graph_id}")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Graph entity not found"}

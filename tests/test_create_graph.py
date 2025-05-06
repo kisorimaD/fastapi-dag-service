@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from itertools import combinations
-from httpx import AsyncClient
+import pytest
 
 
 def post_graph(test_client: TestClient, nodes: list[str], edges: list[tuple[str, str]]) -> int:
@@ -112,7 +112,7 @@ def test_two_graphs_with_same_node_names(test_client: TestClient):
 
     assert response2.status_code == 200
 
-
+@pytest.mark.slow
 def test_many_big_graphs(test_client: TestClient):
     names = list(name_range(100))
     edges = [(name1, name2) for name1, name2 in combinations(names, 2)][:1000]

@@ -1,5 +1,5 @@
 import queue
-from sqlalchemy import select
+from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from sqlalchemy.exc import IntegrityError
@@ -137,7 +137,18 @@ async def db_delete_node(db: AsyncSession, graph_id: int, node_name: str):
     if node_db is None:
         raise HTTPException(404, "Graph entity not found")
 
+
     await db.delete(node_db)
+
+    await db.flush()
+
+    query = select(exists().where(Node.graph_id == graph_id))
+    result = await db.execute(query)
+
+    if not result.scalar():
+        query = select(Graph).where(Graph.id == graph_id)
+        result = await db.execute(query)
+        await db.delete(result.scalar())
 
     await db.commit()
 
