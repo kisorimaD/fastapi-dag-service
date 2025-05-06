@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
 
@@ -35,6 +34,10 @@ class Edge(Base):
                                source_id], back_populates="edges_out")
     target_node = relationship("Node", foreign_keys=[
                                target_id], back_populates="edges_in")
+    
+    __table_args__ = (
+        UniqueConstraint('graph_id', 'source_id', 'target_id'),
+    )
 
     graph = relationship("Graph", back_populates="edges")
 

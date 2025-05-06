@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
+from fastapi import HTTPException
 
 MAX_NODE_NAME_LENGTH = 255
 node_name_pattern = r'^[a-zA-Z]+$'
@@ -24,7 +25,7 @@ class GraphCreate(BaseModel):
     @field_validator('nodes')
     def check_null_nodes(cls, nodes):
         if len(nodes) == 0:
-            raise NotImplementedError("later")
+            raise HTTPException(422, "Graph must have at least one node")
         return nodes
 
 

@@ -1,5 +1,4 @@
 from .db import LocalSession
-from contextlib import asynccontextmanager
 from fastapi import Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
