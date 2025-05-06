@@ -1,4 +1,4 @@
-# Сервис для работы с направленным ациклическим графом (DAG)
+# Сервис для работы с направленными ациклическими графами (DAG)
 
 Сервис предоставляет API для хранения и отображения направленных ациклических графов с хранением данных в PostgreSQL.
 
@@ -66,6 +66,10 @@ pip install -r requirements.txt
 4. Запустите PostgreSQL (можно через Docker):
 ```bash
 docker run --name postgres -e POSTGRES_DB=db -e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -p 5432:5432 postgres:13
+```
+Или, находясь в корне репозитория
+```bash
+docker compose up postgres
 ```
 5. Установите переменные окружения для подключения к базе данных:
 ```bash
