@@ -31,12 +31,6 @@ class GraphCreate(BaseModel):
                     "msg": "Nodes list cannot be empty",
                     "type": "value_error"
                 }]
-                # status_code=422,
-                # detail=[{
-                #     "loc": ["body", "nodes"],
-                #     "msg": "Nodes list cannot be empty",
-                #     "type": "value_error"
-                # }]
             )
         return nodes
 
